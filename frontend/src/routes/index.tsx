@@ -1,14 +1,24 @@
 import { createBrowserRouter } from "react-router-dom";
+import { ProtectedRoute, AuthRoute } from "../components/ProtectedRoute";
 import Layout from "../components/Layout";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
 import Home from "../pages/Home";
 import Dashboard from "../pages/dashboard";
+import Blog from "../pages/dashboard/Blog";
 
 
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: (
+      <Layout>
+        <Home />
+      </Layout>
+    ),
+  },
     {
-      path: '/',
+      path: '/blogs',
       element: (
         <Layout>
           <Home />
@@ -16,10 +26,20 @@ export const router = createBrowserRouter([
       ),
     },
     {
+      path: '/blog/:id',
+      element: (
+        <Layout>
+          <Blog />
+        </Layout>
+      ),
+    },
+    {
       path: '/login',
       element: (
         <Layout>
-          <Login />
+          <AuthRoute>
+            <Login />
+          </AuthRoute>
         </Layout>
       ),
     },
@@ -27,16 +47,20 @@ export const router = createBrowserRouter([
       path: '/register',
       element: (
         <Layout>
-          <Register />
+          <AuthRoute>
+            <Register />
+          </AuthRoute>
         </Layout>
       ),
     },
     {
       path: '/dashboard',
       element: (
-        <Layout>
-          <Dashboard />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <Dashboard />
+          </Layout>
+        </ProtectedRoute>
       ),
     },
 
