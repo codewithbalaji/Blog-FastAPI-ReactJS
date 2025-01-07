@@ -7,7 +7,11 @@ interface Blog {
     };
 	title: string;
 	content: string;
+	author: string;
 	image: string;
+	created_at: {
+		$date: string;
+	};
 }
 
 const LoadingSkeleton = () => (
@@ -27,9 +31,31 @@ const Home = () => {
 
 	useEffect(() => {
 		if (blogs?.data) {
-			setBlogList(blogs.data);
+			// Sort blogs by created_at date in descending order
+			const sortedBlogs = [...blogs.data].sort((a, b) => {
+				const dateA = new Date(a.created_at.$date);
+				const dateB = new Date(b.created_at.$date);
+				return dateB.getTime() - dateA.getTime();
+			});
+			setBlogList(sortedBlogs);
 		}
 	}, [blogs]);
+
+	// Function to strip HTML tags and get plain text
+	const stripHtml = (html: string) => {
+		const tmp = document.createElement('div');
+		tmp.innerHTML = html;
+		return tmp.textContent || tmp.innerText || '';
+	};
+
+	// Function to format date
+	const formatDate = (dateString: string) => {
+		return new Date(dateString).toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		});
+	};
 
 	return (
 		<section className="py-6 sm:py-12 bg-gray-100 text-gray-800">
@@ -38,7 +64,7 @@ const Home = () => {
 					<h2 className="text-3xl font-bold">Read Blogs</h2>
 					<p className="font-serif text-sm text-gray-600">Blog website powered by Fast API</p>
 				</div>
-				<div className="grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 lg:grid-cols-4">
+				<div className="grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 lg:grid-cols-3">
 					{loading ? (
 						// Show 4 skeleton loaders while loading
 						[...Array(4)].map((_, index) => (
@@ -46,16 +72,37 @@ const Home = () => {
 						))
 					) : (
 						blogList.map((blog: Blog) => (
-							<article key={blog._id.$oid} className="flex flex-col bg-gray-50">
-								<a rel="noopener noreferrer" href="#" aria-label={blog.title}>
-									<img alt={blog.title} className="object-cover w-full h-52 bg-gray-500" src={blog.image} />
-								</a>
+							<article key={blog._id.$oid} className="flex flex-col bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+								<div className="h-48 overflow-hidden">
+									<img 
+										src={blog.image} 
+										alt={blog.title}
+										className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+									/>
+								</div>
 								<div className="flex flex-col flex-1 p-6">
-									<a rel="noopener noreferrer" href="#" aria-label={blog.title}></a>
-									<a rel="noopener noreferrer" href="#" className="text-xs tracking-wider uppercase hover:underline text-purple-600">Blog</a>
-									<h3 className="flex-1 py-2 text-lg font-semibold leading-snug">{blog.title}</h3>
-									<div className="flex flex-wrap justify-between pt-3 space-x-2 text-xs text-gray-600">
-										<span>{blog.content.substring(0, 100)}...</span>
+									<div className="flex justify-between items-center">
+										<span className="text-xs text-purple-600">
+											By {blog.author}
+										</span>
+										<span className="text-xs text-gray-500">
+											{formatDate(blog.created_at.$date)}
+										</span>
+									</div>
+									<h3 className="flex-1 py-2 text-lg font-semibold leading-snug hover:text-purple-600 transition-colors">
+										{blog.title}
+									</h3>
+									<div className="pt-3 text-sm text-gray-600">
+										<p>{stripHtml(blog.content).substring(0, 150)}...</p>
+									</div>
+									<div className="flex justify-end mt-4">
+										<a 
+											href={`/blog/${blog._id.$oid}`}
+											className="text-purple-600 hover:text-purple-800 text-sm font-semibold flex items-center gap-1 transition-colors"
+										>
+											Read More 
+											<span className="text-lg">→</span>
+										</a>
 									</div>
 								</div>
 							</article>
@@ -68,3 +115,4 @@ const Home = () => {
 };
 
 export default Home;
+

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import UseCreateBlogs from '../../hooks/use-create-blogs';
 import { useAuth } from '../../contexts/auth-contexts';
+import { toast } from 'react-toastify';
+
 
 interface BlogForm {
   title: string;
@@ -39,6 +41,7 @@ const Dashboard = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await createBlog(formData);
+    toast.success('Blog created successfully');
     // Reset form after successful submission
     setFormData({
       title: '',

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 
 const UseGetBlogs = () => {
   const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
