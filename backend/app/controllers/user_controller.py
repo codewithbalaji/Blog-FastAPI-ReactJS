@@ -5,6 +5,7 @@ from ..models.user import User, UserCreate, UserLogin
 from ..services.user_service import UserService
 from ..core.security import create_access_token, verify_token
 from ..core.config import settings
+from ..core.email import send_welcome_email
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -17,6 +18,14 @@ class UserController:
                 status_code=400,
                 detail="Email already registered"
             )
+        
+        # Send welcome email
+        try:
+            await send_welcome_email(user.email, user.username)
+        except Exception as e:
+            print(f"Failed to send welcome email: {e}")
+            # Don't raise exception here as registration was successful
+            
         return db_user
 
     @staticmethod
